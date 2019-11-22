@@ -1,0 +1,5 @@
+SecretKey: 1234
+git-url: https://github.com/idobry/gitopsdemo.git
+username: idobry
+password: liad171393
+base-dir: "."
