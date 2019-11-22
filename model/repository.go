@@ -10,7 +10,8 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
 
-var BASE_DIR = viper.GetString("base-dir")
+//var BaseDir = viper.GetString("base-dir")
+const BaseDir = "./workspace/"
 var repo Repository
 
 type Repository struct{
@@ -22,9 +23,9 @@ type Repository struct{
 	token string
 }
 
-func NewRepository(){
-	repoName := strings.Split(viper.GetString("git-url"), ".")[0]
-	repoName = strings.Split(repoName, "/")[len(repoName)-1]
+func NewRepository() *Repository{
+	var url = viper.GetString("git-url")
+	repoName := strings.Split(url[strings.LastIndex(url, "/")+1:], ".")[0]
 	repo = Repository{repoName: repoName, url: viper.GetString("git-url"), password: viper.GetString("password"), token: viper.GetString("token")}
 
 	if repo.token != ""{
@@ -36,10 +37,12 @@ func NewRepository(){
 	}else{
 		logrus.Error("Wrong git config input")
 	}
+
+	return &repo
 }
 
 func publicRepo() *git.Repository{
-	r, err := git.PlainClone(BASE_DIR+"/"+repo.repoName, false, &git.CloneOptions{
+	r, err := git.PlainClone(BaseDir+"/"+repo.repoName, false, &git.CloneOptions{
 		URL:               repo.url,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	})
@@ -52,7 +55,7 @@ func publicRepo() *git.Repository{
 }
 
 func token() *git.Repository{
-	r, err := git.PlainClone(BASE_DIR+"/"+repo.repoName, false, &git.CloneOptions{
+	r, err := git.PlainClone(BaseDir+"/"+repo.repoName, false, &git.CloneOptions{
 		Auth: &http.BasicAuth{
 			Username: "username",
 			Password: repo.token,
@@ -69,7 +72,7 @@ func token() *git.Repository{
 }
 
 func usernamePassword() *git.Repository{
-	r, err := git.PlainClone(BASE_DIR+"/"+repo.repoName, false, &git.CloneOptions{
+	r, err := git.PlainClone(BaseDir+"/"+repo.repoName, false, &git.CloneOptions{
 		Auth: &http.BasicAuth{
 			Username: repo.username,
 			Password: repo.password,
